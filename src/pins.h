@@ -86,6 +86,7 @@ typedef struct FACTORY_SETTINGS
 
 
 #define VOLTAGE_DIVIDER_VAL   14.2
+#define NTC_B_CONST           4400 //currenlty assumed value based on tests
 #ifdef __STM_HAL_MX
 #define BUZZER_EN_Pin GPIO_PIN_13
 #define BUZZER_EN_GPIO_Port GPIOC

@@ -39,7 +39,7 @@ float Vsupply = 3.3; //power supply voltage (3.3 V rail) -STM32 ADC pin is NOT 5
 float Vout; //Voltage divider output
 float R_NTC; //NTC thermistor resistance in Ohms
 float R_10k = 9850; //10k resistor measured resistance in Ohms (other element in the voltage divider)
-float B_param = 4300; //B-coefficient of the thermistor
+float B_param = NTC_B_CONST; //B-coefficient of the thermistor
 float T0 = 298.15; //25°C in Kelvin
 float Temp_K; //Temperature measured by the thermistor (Kelvin)
 float Temp_C; //Temperature measured by the thermistor (Celsius)
@@ -163,7 +163,7 @@ void plotNeedle(int value, byte ms_delay)
 
     // Re-plot text under needle
     tft.setTextColor(TFT_BLACK);
-    tft.drawCentreString("Deg C", M_SIZE*120, M_SIZE*70, 4); // // Comment out to avoid font 4
+  //  tft.drawCentreString("Deg C", M_SIZE*120, M_SIZE*70, 4); // // Comment out to avoid font 4
 
     // Store new needle end coords for next erase
     ltx = tx;
@@ -267,7 +267,7 @@ void analogMeter()
     if (i < 50) tft.drawLine(x0, y0, x1, y1, TFT_BLACK);
   }
 
-  tft.drawString("Deg C", M_SIZE*(5 + 230 - 40), M_SIZE*(119 - 20), 2); // Units at bottom right
+ // tft.drawString("Deg C", M_SIZE*(5 + 230 - 40), M_SIZE*(119 - 20), 2); // Units at bottom right
   //tft.drawCentreString("DegC", M_SIZE*120, M_SIZE*70, 4); // Comment out to avoid font 4
   tft.drawRect(5, 3, M_SIZE*230, M_SIZE*119, TFT_BLACK); // Draw bezel line
 
@@ -318,6 +318,6 @@ void loop() {
    // d += 4; if (d >= 360) d = 0;
     //value[0] = 50 + 50 * sin((d + 0) * 0.0174532925);
     value[0]=return_ADC(0);
-    plotNeedle(return_ADC(1), 0); // It takes between 2 and 12ms to replot the needle with zero delay
+    plotNeedle(return_ADC(3), 0); // It takes between 2 and 12ms to replot the needle with zero delay
   }
 }
