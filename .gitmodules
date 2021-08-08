@@ -1,3 +1,6 @@
 [submodule "lib/TFT_eSPI"]
 	path = lib/TFT_eSPI
 	url = https://github.com/Bodmer/TFT_eSPI/
+[submodule "lib/TM1650"]
+	path = lib/TM1650
+	url = https://github.com/arkhipenko/TM1650.git
