@@ -28,16 +28,24 @@
 #define SETTINGS_MEM        0x803F000
 #define FACTORY_CALIB_MEM   0x803F800
 #define ENTRY_VECTOR_BOOT   0x8000000
+#define BOOTLOAD_SETTINGS   0x8005000
 #define ENTRY_VECTOR_APP    0x8006000
 
 
 typedef struct FACTORY_SETTINGS
 {
-    char check_value;
-    char check_value_two;
+    uint16_t check_value;
+    uint16_t check_value_two;
     uint32_t serial_number;
-    uint8_t lcd_type;
-    int16_t unknown;
+    uint16_t lcd_type;// lsb 8 bits
+    uint16_t unknown;
+    uint16_t unknown_two;
+    uint16_t unknown_three;
+    uint16_t unknown_four;
+    uint16_t unknown_five;
+    uint16_t unknown_six;
+    uint16_t unknown_seven;
+
 
 }FACT_TypeDef;
 
@@ -48,11 +56,11 @@ typedef struct FACTORY_SETTINGS
 #define TEMP_INT        PC0
 #define V_INPUT         PC1
 #define TEMP_EXT        PC2
-#define DIGITAL_PAD_IRQ PC3
+
 #define DTC_PIN         PA1
 #define TTL_EN          PA6
-#define VSET_LED        PC5
-#define ISET_LED        PC4
+#define VSET_LED        PC4
+#define ISET_LED        PC5
 #define LCD_BACKLIGHT   PB0
 #define PWR_MAIN_LED    PC6
 #define SHIFT_LED       PC7
@@ -71,13 +79,19 @@ typedef struct FACTORY_SETTINGS
 #define SPI_EEPROM      Spi2
 #define RELAY_OUT       PC12
 #define KEYPAD_II2C     I2C2
-#define EEPROM          I2C1
+#define KEYPAD_SDA      PB7
+#define KEYPAD_SCL      PB6
+#define KEYPAD_IRQ      PC3
+#define EEPROM          I2C2
+#define EEPROM_SDA      PB11
+#define EEPROM_SCL      PB10
+
 #define FAN_OUT         PD2
 #define ECODER_A        PB9
 #define ECODER_B        PB8
 
-#define CAP47           PA4
-#define CAP220          PA5
+#define CAP47           PA4 //Gate of Q41 SL2303
+#define CAP220          PA5 //Gate of Q4 SL2303
 
 #define W25Q32_DIO      PB4
 #define W25Q32_DOI      PB5
@@ -85,8 +99,46 @@ typedef struct FACTORY_SETTINGS
 #define W25Q32_CS       PA15
 
 
-#define VOLTAGE_DIVIDER_VAL   14.2
-#define NTC_B_CONST           4400 //currenlty assumed value based on tests
+#define VOLTAGE_DIVIDER_VAL     14.2
+#define VOLTAGE_DIVIDER_VAL_12B 56
+#define NTC_B_CONST             4400 //currenlty assumed value based on tests
+
+/*
+*
+* Buttons For TMC1650
+*/
+#define KEY_I_SET           0
+#define KEY_MEM             1
+#define KEY_MAIN_POWER      2
+#define KEY_SHIFT           3
+#define KEY_ZERO            4
+#define KEY_ONE             5
+#define KEY_FOUR            6
+#define KEY_SEVEN           7
+#define KEY_FULL_STOP       8
+#define KEY_TWO             9
+#define KEY_FIVE            10
+#define KEY_EIGHT           11
+#define KEY_LEFT            12
+#define KEY_THREE           13
+#define KEY_SIX             14
+#define KEY_NINE            15
+#define KEY_RIGHT           16
+#define KEY_ENTER           17
+#define KEY_DOWN            18
+#define KEY_UP              19
+#define KEY_V_SET           21
+#define KEY_ENCODER         20
+#define KEY_ON_OFF_POWER    23
+
+
+
+
+
+
+
+
+
 #ifdef __STM_HAL_MX
 #define BUZZER_EN_Pin GPIO_PIN_13
 #define BUZZER_EN_GPIO_Port GPIOC

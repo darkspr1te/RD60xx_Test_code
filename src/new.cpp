@@ -19,18 +19,48 @@ tft.setTextColor(TFT_WHITE, TFT_BLACK);
 tft.setCursor((tft.getViewportHeight()/3),15);
 sprintf(msgString," 3f800 struture :-");
 tft.println(msgString);
-sprintf(msgString,"char check value           0x%02x", settings_factory.check_value);
+sprintf(msgString,"uint_t check value          0x%02x", settings_factory.check_value);
 tft.println(msgString);
-sprintf(msgString,"char check value two       0x%02X", settings_factory.check_value);
+sprintf(msgString,"uint_tcheck value two       0x%02X", settings_factory.check_value);
 tft.println(msgString);
-sprintf(msgString,"uint32_t Serial Number     0x%02x", settings_factory.serial_number);
+sprintf(msgString,"uint32_t Serial Number      0x%02x    #%010d", settings_factory.serial_number,settings_factory.serial_number);
 tft.println(msgString);
-sprintf(msgString,"uint8_t LCD Type           0x%02x", settings_factory.lcd_type);
+sprintf(msgString,"uint_t LCD Type             0x%02x", settings_factory.lcd_type);
 tft.println(msgString);
 sprintf(msgString,"uint_t uknown              0x%02x", settings_factory.unknown);
 tft.println(msgString);
+sprintf(msgString,"uint_t uknown two          0x%02x", settings_factory.unknown_two);
+tft.println(msgString);
+sprintf(msgString,"uint_t uknown three        0x%02x", settings_factory.unknown_three);
+tft.println(msgString);
+sprintf(msgString,"uint_t uknown four         0x%02x", settings_factory.unknown_four);
+tft.println(msgString);
+sprintf(msgString,"uint_t uknown five         0x%02x", settings_factory.unknown_five);
+tft.println(msgString);
+sprintf(msgString,"uint_t uknown six          0x%02x", settings_factory.unknown_six);
+tft.println(msgString); 
+sprintf(msgString,"uint_t uknown seven        0x%02x", settings_factory.unknown_seven);
+tft.println(msgString);
+sprintf(msgString,"Press Power button to continue");
+tft.println(msgString);
 }
 
+void init_ADC()
+{
+  pinMode(V_INPUT,INPUT_ANALOG);
+  pinMode(TEMP_INT,INPUT_ANALOG);
+  pinMode(TEMP_EXT,INPUT_ANALOG);
+  pinMode(V_BATT,INPUT_ANALOG);
+}
+void init_led_buttons()
+{
+  pinMode(ON_OFF_LED,OUTPUT);
+  pinMode(PWR_MAIN_LED,OUTPUT);
+  pinMode(SHIFT_LED,OUTPUT);
+  pinMode(MEM_LED,OUTPUT);
+  pinMode(ISET_LED,OUTPUT);
+  pinMode(VSET_LED,OUTPUT);
+}
 
 #define PAGE_DELAY 5000
 ///
@@ -81,7 +111,11 @@ if (adc_val==2)
   return tmpInt1;
 
 
-  adc_read = vInput/VOLTAGE_DIVIDER_VAL; //assumed value based on a few small readings with rigol ds1054/ fluke 054 classic / UT5005 multimeter 
+ // adc_read = vInput/VOLTAGE_DIVIDER_VAL; //assumed value based on a few small readings with rigol ds1054/ fluke 054 classic / UT5005 multimeter 
+ // Serial3.print(adc_read);Serial3.print("  ");
+  adc_read = float(vInput/VOLTAGE_DIVIDER_VAL_12B);
+  //adc_read = (float(vInput)/14);
+ // Serial3.println(adc_read);
   tmpVal = (adc_read < 0) ? -adc_read : adc_read;
     char *tmpSign = "";
     if (adc_read<0)
@@ -93,6 +127,7 @@ if (adc_val==2)
   tmpInt2 = trunc(tmpFrac * 100);  
 if (adc_val==3)
   return tmpInt1;
+  
  // sprintf (msgString, "Voltage Input = V %s%d.%02d", tmpSign, tmpInt1, tmpInt2);
  // tft.println(msgString);
 
@@ -274,13 +309,130 @@ void analogMeter()
   plotNeedle(0, 0); // Put meter needle at 0
 }
 
+#include <TM1650.h>
+#include <TM16xxButtons.h>
 
+TM1650 module(KEYPAD_SDA,KEYPAD_SCL, KEYPAD_IRQ);   // DIO=8, CLK=9, STB=7
+TM16xxButtons buttons(&module);    // TM16xx object
+
+void fnClick(byte nButton)
+{ // byte nButton is the button-number (first button is number 0)
+#if   defined(DEBUG_TWO)
+  Serial3.print(F("Button "));
+  Serial3.print(nButton);
+  Serial3.println(F(" click."));
+#endif 
+  switch  (nButton)
+  {
+    case 0:
+      Serial3.println("Key ISET pressed");
+      digitalWrite(ISET_LED,!digitalRead(ISET_LED));
+      break;
+    case 1:
+      Serial3.println("Key MEM pushed");
+      digitalWrite(MEM_LED ,!digitalRead(MEM_LED ));
+      break;
+    case 2:
+      Serial3.println("Key POWER_MAIN pressed");
+      digitalWrite(PWR_MAIN_LED ,!digitalRead(PWR_MAIN_LED ));
+      break;
+    case 3:
+      Serial3.println("Key SHIFT pressed");
+      digitalWrite(SHIFT_LED ,!digitalRead(SHIFT_LED ));
+      break;
+    case 4:
+      Serial3.println("Key ZERO Pressed");
+      break;
+    case 5:
+      Serial3.println("Key ONE Pressed");
+      break;
+    case 6:
+      Serial3.println("Key FOUR Pressed");
+      break;
+    case 7:
+      Serial3.println("Key SEVEN Pressed");
+      break;
+    case 8:
+      Serial3.println("Key FULL_STOPPressed");
+      break;
+    case 9:
+      Serial3.println("Key TWO Pressed");
+      break;
+    case 10:
+      Serial3.println("Key FIVE Pressed");
+      break;
+    case 11:
+      Serial3.println("Key EIGHT Pressed");
+      break;
+    case 12:
+      Serial3.println("Key LEFT Pressed");
+      break;
+    case 13:
+      Serial3.println("Key THREE Pressed");
+      break;
+    case 14:
+      Serial3.println("Key SIX Pressed");
+      break;
+    case 15:
+      Serial3.println("Key NINE Pressed");
+      break;
+    case 16:
+      Serial3.println("Key RIGHT Pressed");
+      break;
+    case 17:
+      Serial3.println("Key ENTER Pressed");
+      break;
+    case 18:
+      Serial3.println("Key DOWN Pressed");
+      break;
+    case 19:
+      Serial3.println("Key UP Pressed");
+      break;
+    case 20:
+      Serial3.println("Key ROTARY Pressed");
+      break;
+    case 21:
+      Serial3.println("Key VSET Pressed");
+      digitalWrite(VSET_LED ,!digitalRead(VSET_LED ));
+      break;
+    case 23:
+      Serial3.println("Key ON_OFF pressed");
+      digitalWrite(ON_OFF_LED ,!digitalRead(ON_OFF_LED ));
+      break;
+
+    default :
+      Serial3.println("error unknown key");
+  }
+}
+
+#include <Wire.h>
+#define ADDR_Ax 0b000 //A2, A1, A0
+#define ADDR (0b1010 << 3) + ADDR_Ax
+
+void writeI2CByte(byte data_addr, byte data){
+  Wire.beginTransmission(ADDR);
+  Wire.write(data_addr);
+  Wire.write(data);
+  Wire.endTransmission();
+}
+
+byte readI2CByte(byte data_addr){
+  byte data = NULL;
+  
+  Wire.beginTransmission(ADDR);
+  Wire.write(data_addr);
+  Wire.endTransmission();
+  Wire.requestFrom(ADDR, 1); //retrieve 1 returned byte
+  delay(1);
+  if(Wire.available()){
+    data = Wire.read();
+  }
+  return data;
+}
 void setup() {
-pinMode(V_INPUT,INPUT_ANALOG);
-pinMode(TEMP_INT,INPUT_ANALOG);
-pinMode(TEMP_EXT,INPUT_ANALOG);
-pinMode(V_BATT,INPUT_ANALOG);
 
+init_ADC();
+init_led_buttons();
  tft.init();
  tft.setRotation(3); // Must be setRotation(0) for this sketch to work correctly
  tft.fillScreen(TFT_BLACK);
@@ -294,22 +446,47 @@ sprintf(msgString," Riden 60%d version ", RIDEN_MODEL);
 tft.println(msgString);
 
 Serial3.begin(115200);
-Serial3.println("Enable USB Serial");
-
+Serial3.println("\n\rEnable USB Serial");
+//_i2c.sda = digitalPinToPinName(EEPROM_SDA);
+//_i2c.scl = digitalPinToPinName(EEPROM_SCL);
+//Wire.begin(EEPROM_SDA,EEPROM_SCL);
+Wire.setSDA(EEPROM_SDA);
+Wire.setSCL(EEPROM_SCL);
+Wire.begin();
+//writeI2CByte(0, 1);
+int value=0;
+#if 1
+for (int row=0;row<0xf;row++)
+{
+  for (int column=0;column<0xf;column++)
+  {
+    value = readI2CByte(column+row);
+    Serial3.print(value,HEX);Serial3.print(", ");
+  }
+  Serial3.println();
+}
+#endif
+buttons.attachClick(fnClick);
 dump_factory_config();
 tft.setTextSize(2);
-delay(200);
+//delay(1500);
+while (buttons.isPressed(KEY_MAIN_POWER)!=1)
+{
+  buttons.tick();
+  delay(100);
+}
 tft.fillScreen(TFT_BLACK);
 tft.setCursor(0,0);
-
- analogMeter(); // Draw analogue meter
-
-  updateTime = millis(); // Next update time
+analogReadResolution(12); //set ADC to 12 bit 
+analogMeter(); // Draw analogue meter
+updateTime = millis(); // Next update time
 }
 
 
 
 void loop() {
+
+buttons.tick();
 
  if (updateTime <= millis()) {
     updateTime = millis() + 35; // Update emter every 35 milliseconds
