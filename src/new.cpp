@@ -1,14 +1,20 @@
 #include <Arduino.h>
 #include <TFT_eSPI.h> // Hardware-specific library
-
+#include <Wire.h>
 #define __ARDUINO_
 #include "pins.h"
+#include <TM1650.h>
+#include <TM16xxButtons.h>
+
+TM1650 module(KEYPAD_SDA,KEYPAD_SCL, KEYPAD_IRQ);   // DIO=8, CLK=9, STB=7
+TM16xxButtons buttons(&module);    // TM16xx object
+TFT_eSPI tft = TFT_eSPI();       // Invoke custom library
 //HardwareSerial Serial2(PA3, PA2);
 HardwareSerial Serial3(PC_11_ALT1, PC_10_ALT1);
 
 char msgString[100]={0};
 
-TFT_eSPI tft = TFT_eSPI();       // Invoke custom library
+
 int16_t version_local=0;
 FACTORY_SETTINGS settings_factory={0};
  
@@ -41,8 +47,15 @@ sprintf(msgString,"uint_t uknown six          0x%02x", settings_factory.unknown_
 tft.println(msgString); 
 sprintf(msgString,"uint_t uknown seven        0x%02x", settings_factory.unknown_seven);
 tft.println(msgString);
+tft.println();
+tft.setTextSize(2);
 sprintf(msgString,"Press Power button to continue");
 tft.println(msgString);
+while (buttons.isPressed(KEY_MAIN_POWER)!=1)
+{
+  buttons.tick();
+  delay(100);
+}
 }
 
 void init_ADC()
@@ -309,11 +322,6 @@ void analogMeter()
   plotNeedle(0, 0); // Put meter needle at 0
 }
 
-#include <TM1650.h>
-#include <TM16xxButtons.h>
-
-TM1650 module(KEYPAD_SDA,KEYPAD_SCL, KEYPAD_IRQ);   // DIO=8, CLK=9, STB=7
-TM16xxButtons buttons(&module);    // TM16xx object
 
 void fnClick(byte nButton)
 { // byte nButton is the button-number (first button is number 0)
@@ -405,9 +413,7 @@ void fnClick(byte nButton)
   }
 }
 
-#include <Wire.h>
-#define ADDR_Ax 0b000 //A2, A1, A0
-#define ADDR (0b1010 << 3) + ADDR_Ax
+
 
 void writeI2CByte(byte data_addr, byte data){
   Wire.beginTransmission(ADDR);
@@ -429,52 +435,58 @@ byte readI2CByte(byte data_addr){
   }
   return data;
 }
+
+void init_EEPROM()
+{
+  Serial3.println("Enable EEPROM");
+  Wire.setSDA(EEPROM_SDA);
+  Wire.setSCL(EEPROM_SCL);
+  Wire.begin();
+  //writeI2CByte(0, 1);
+  int value=0;
+  #if 1
+  for (int row=0;row<0xf;row++)
+  {
+    for (int column=0;column<0xf;column++)
+    {
+      value = readI2CByte(column+row);
+    //  Serial3.print(value,HEX);
+     // Serial3.print(", ");
+     sprintf(msgString,"0x%02x ",value);
+     Serial3.print(msgString);
+    }
+    Serial3.println();
+  }
+#endif
+
+}
 void setup() {
 
 init_ADC();
 init_led_buttons();
- tft.init();
- tft.setRotation(3); // Must be setRotation(0) for this sketch to work correctly
- tft.fillScreen(TFT_BLACK);
+Serial3.begin(115200);//start serial early in case of any debug
+Serial3.println("\n\rEnable USB Serial");
 
- tft.setTextColor(TFT_WHITE, TFT_BLUE);
- tft.fillRect(0,0,320,16, TFT_BLUE);
+tft.init();
+tft.setRotation(3); 
+tft.fillScreen(TFT_BLACK);
+
+tft.setTextColor(TFT_WHITE, TFT_BLUE);
+tft.fillRect(0,0,320,16, TFT_BLUE);
 settings_factory=*(FACTORY_SETTINGS*)FACTORY_CALIB_MEM;
 tft.setCursor((tft.getViewportHeight()/3),4);
 sprintf(msgString," Riden 60%d version ", RIDEN_MODEL);
  
 tft.println(msgString);
 
-Serial3.begin(115200);
-Serial3.println("\n\rEnable USB Serial");
-//_i2c.sda = digitalPinToPinName(EEPROM_SDA);
-//_i2c.scl = digitalPinToPinName(EEPROM_SCL);
-//Wire.begin(EEPROM_SDA,EEPROM_SCL);
-Wire.setSDA(EEPROM_SDA);
-Wire.setSCL(EEPROM_SCL);
-Wire.begin();
-//writeI2CByte(0, 1);
-int value=0;
-#if 1
-for (int row=0;row<0xf;row++)
-{
-  for (int column=0;column<0xf;column++)
-  {
-    value = readI2CByte(column+row);
-    Serial3.print(value,HEX);Serial3.print(", ");
-  }
-  Serial3.println();
-}
-#endif
+
+
+init_EEPROM();
 buttons.attachClick(fnClick);
 dump_factory_config();
 tft.setTextSize(2);
 //delay(1500);
-while (buttons.isPressed(KEY_MAIN_POWER)!=1)
-{
-  buttons.tick();
-  delay(100);
-}
+
 tft.fillScreen(TFT_BLACK);
 tft.setCursor(0,0);
 analogReadResolution(12); //set ADC to 12 bit 

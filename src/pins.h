@@ -82,9 +82,12 @@ typedef struct FACTORY_SETTINGS
 #define KEYPAD_SDA      PB7
 #define KEYPAD_SCL      PB6
 #define KEYPAD_IRQ      PC3
+
 #define EEPROM          I2C2
 #define EEPROM_SDA      PB11
 #define EEPROM_SCL      PB10
+#define ADDR_Ax 0b000 //A2, A1, A0
+#define ADDR (0b1010 << 3) + ADDR_Ax
 
 #define FAN_OUT         PD2
 #define ECODER_A        PB9
