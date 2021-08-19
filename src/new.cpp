@@ -444,7 +444,7 @@ void init_EEPROM()
   Wire.begin();
   //writeI2CByte(0, 1);
   int value=0;
-  #if 1
+  #if 1 //dump eeprom 
   for (int row=0;row<0xf;row++)
   {
     for (int column=0;column<0xf;column++)
